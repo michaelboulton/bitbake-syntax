@@ -22,6 +22,7 @@ contexts:
       scope: punctuation.definition.string.begin.bitbake
       push: double_quoted_string
 
+
     # Comments begin with a '#' and finish at the end of the line
     - match: '#'
       scope: punctuation.definition.comment.bitbake
@@ -44,6 +45,23 @@ contexts:
     - match: '\s*(inherit|include|require)\s+(?=[[:alpha:]])'
       scope: keyword.control.import.bitbake
 
+    - match: '^python'
+      scope: keyword.python.bitbake
+      push: python_block
+
+  python_block:
+    - match: '\s+(__anonymous)?\s*\(\s*\)'
+      scope: keyword.python.bitbake
+    - match: '}'
+      pop: true
+    - match: '{'
+      scope: keyword.script.python.bitbake
+      push: Python.sublime-syntax
+      with_prototype:
+        - match: '^(?=\})'
+          scope: keyword.script.python.bitbake
+          pop: true
+
   double_quoted_string:
     - meta_scope: string.quoted.double.bitbake
     - match: '\\.'
@@ -56,7 +74,11 @@ contexts:
 
   line_comment:
     - meta_scope: comment.line.bitbake
-    - match: $
+    - match: '.*\\\s*$'
+      scope: comment.line.bad.bitbake
+      pop: true
+    - match: '[^\\]+\s*$'
+      scope: comment.line.good.bitbake
       pop: true
 
   variable_placeholder:
@@ -70,7 +92,7 @@ contexts:
 
 
   magic_variable_names:
-    - match: \b(AUTOINC)\b
+    - match: \b(AUTOINC|AUTOREV)\b
       scope: support.variable.bitbake
 
   variable_names:
@@ -79,7 +101,7 @@ contexts:
                 |MACHINE_FEATURES|IMAGE_FSTYPES|UBOOT_BINARY|EXTRA_IMAGEDEPENDS|MACHINE_FEATURES|
                 |KERNEL_IMAGETYPE|KERNEL_DEVICETREE|PREFERRED_PROVIDER|PREFERRED_VERSION|
                 |DEFAULTTUNE|IMAGE_CLASSES|SUMMARY|COMPATIBLE_HOST|FILES|PACKAGES|RDEPENDS|
-                |EXTRA_OECONF|EXTRA_OEMAKE)_?"
+                |EXTRA_OECONF|EXTRA_OEMAKE|PACKAGECONFIG)_?"
       scope: support.constant.bitbake
 
   short_variables:
